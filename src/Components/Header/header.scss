@@ -1,0 +1,23 @@
+@mixin font-borel {
+    font-family: "Borel", cursive;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.header {
+    border-bottom: 1px solid;
+    padding: 7px 0;
+
+    &__item {
+        display: flex;
+
+        p {
+            padding: 0 10px;
+
+            a {
+                color: black;
+                @include font-borel
+            }
+        }
+    }
+}

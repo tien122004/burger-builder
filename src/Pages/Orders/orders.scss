@@ -1,0 +1,63 @@
+.order {
+    &__container {
+        width: 70%;
+        margin: 0 auto;
+        margin-top: 50px;
+        border: 2px solid black;
+        border-radius: 3px;
+        position: relative;
+
+        &::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background-color: black;
+            top: 0;
+            right: 25%;
+        }
+
+        .order__title {
+            display: flex;
+            width: 100%;
+            background-color: #ccc;
+            padding: 3px 0;
+
+            &-ingredients,
+            &-price {
+                width: 75%;
+                font-size: 14px;
+                font-family: sans-serif;
+                font-weight: 600;
+                padding-left: 5px;
+            }
+
+            &-price {
+                width: 25%;
+            }
+        }
+
+        .order__ingredients {
+            &-item {
+                display: flex;
+
+                &:nth-child(2n + 1) {
+                    background-color: #EEEEEE;
+                }
+            }
+
+            &-detail,
+            &-price {
+                width: 75%;
+                padding: 5px;
+                font-size: 14px;
+                font-weight: 600;
+                font-family: system-ui;
+            }
+
+            &-price {
+                width: 25%;
+            }
+        }
+    }
+}
