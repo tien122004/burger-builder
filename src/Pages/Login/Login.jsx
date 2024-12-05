@@ -1,39 +1,70 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './login.scss';
-import Header from '../../Components/Header/Header';
+import Header from '../../components/Header/Header';
 import { useNavigate } from 'react-router-dom';
+import { db } from '../../Config/firebase';
+import { addDoc, collection, getDocs } from 'firebase/firestore';
 import { message } from 'antd';
-import { auth } from '../../Config/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Login() {
     const [isLogin, setIsLogin] = useState(false);
+    const [users, setUsers] = useState([])
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
-    console.log(auth)
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
+    const getUsers = async () => {
         try {
-            await signInWithEmailAndPassword(auth, email, password);
-            message.success('Login success');
-            navigate('/');
+            const response = await getDocs(collection(db, 'users'))
+            const data = response.docs.map(user => {
+                return {
+                    id: user.id,
+                    email: user.data().email,
+                    password: user.data().password,
+                }
+            })
+            setUsers(data)
         } catch (error) {
-            message.error('Login failed: ' + error.message);
+            console.log('Error getUsers::' + error)
         }
-    };
+    }
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        try {
-            await createUserWithEmailAndPassword(auth, email, password);
-            message.success('Register success');
-            setIsLogin(false);
-        } catch (error) {
-            message.error('Register failed: ' + error.message);
+        const newUser = { email, password };
+        const userExists = users.some(user => user.email === email);
+        if (userExists) {
+            message.error('Tài khoản đã tồn tại');
+        } else {
+            try {
+                await addDoc(collection(db, 'users'), newUser);
+                message.success('Tài khoản đã được đăng ký');
+                setUsers([...users, newUser]);
+            } catch (error) {
+                message.error('Lỗi đăng ký tài khoản');
+                console.log('Error handleRegister::' + error);
+            }
         }
     };
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        const userExists = users.some(user => {
+            if (user.email === email && user.password === password) {
+                localStorage.setItem('user', JSON.stringify({ ...user, isLogin: true }))
+                return true
+            }
+            return false
+        })
+        if (userExists) {
+            message.success('Đăng nhập thành công');
+            navigate('/');
+        } else {
+            message.error('Email hoặc password không chính xác');
+        }
+    };
+
+    useEffect(() => { getUsers() }, [])
 
     return (
         <div className='login'>
